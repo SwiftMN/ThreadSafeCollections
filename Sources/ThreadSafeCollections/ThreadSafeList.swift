@@ -60,6 +60,12 @@ public class ThreadSafeList<V> {
     }
   }
   
+  public func removeAll(where shouldBeRemoved: @escaping (V) -> Bool) {
+    itemQueue.async(flags: .barrier) { // safely write
+      self.items.removeAll(where: shouldBeRemoved)
+    }
+  }
+  
   public func getAll() -> [V] {
     var allItems = [V]()
     itemQueue.sync { // safely read
@@ -74,6 +80,22 @@ public class ThreadSafeList<V> {
       count = self.items.count
     }
     return count
+  }
+  
+  public func contains(where predicate: (V) throws -> Bool) rethrows -> Bool {
+    var doesContain = false
+    try itemQueue.sync { // safely read
+      doesContain = try self.items.contains(where: predicate)
+    }
+    return doesContain
+  }
+  
+  public func first(where predicate: (V) throws -> Bool) rethrows -> V? {
+    var foundItem: V? = nil
+    try itemQueue.sync { // safely read
+      foundItem = try self.items.first(where: predicate)
+    }
+    return foundItem
   }
   
   public subscript(index: Int) -> V? {
