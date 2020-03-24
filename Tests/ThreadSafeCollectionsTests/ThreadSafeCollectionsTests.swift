@@ -38,6 +38,11 @@ final class ThreadSafeCollectionsTests: XCTestCase {
     XCTAssertEqual(0, m.count())
     m.append(contentsOf: items)
     XCTAssertEqual(100, m.count())
+    XCTAssertTrue(m.contains(where: { $0 == 5 }))
+    XCTAssertEqual(5, m.first(where: { $0 == 5 }))
+    m.removeAll(where: { $0 == 5 })
+    XCTAssertFalse(m.contains(where: { $0 == 5 }))
+    XCTAssertNil(m.first(where: { $0 == 5 }))
   }
   
 }
